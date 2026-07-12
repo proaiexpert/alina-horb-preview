@@ -30,9 +30,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          curl --fail --location --retry 3 \
-            "https://drive.usercontent.google.com/download?id=1qGa-6NVppkArqx1cqGzL16iuHHBHXMA1&export=download&confirm=t" \
-            --output site.zip
+          python3 -m pip install --disable-pip-version-check --quiet gdown==5.2.0
+          python3 -m gdown --id 1qGa-6NVppkArqx1cqGzL16iuHHBHXMA1 --output site.zip
           echo "657c3383228f6d4fb95ebe3464d30d559cb0d560005b19d9468ade4e0a671f4f  site.zip" | sha256sum --check --strict
 
       - name: Prepare public Pages artifact
