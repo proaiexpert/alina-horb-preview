@@ -24,7 +24,7 @@ jobs:
 
     steps:
       - name: Checkout preview repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Download approved website package
         shell: bash
@@ -54,7 +54,7 @@ jobs:
           enablement: true
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v3
         with:
           path: _site
 
