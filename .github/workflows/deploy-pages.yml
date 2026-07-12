@@ -1,0 +1,63 @@
+name: Deploy Alina Horb preview
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout preview repository
+        uses: actions/checkout@v6
+
+      - name: Download approved website package
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 \
+            "https://drive.usercontent.google.com/download?id=1qGa-6NVppkArqx1cqGzL16iuHHBHXMA1&export=download&confirm=t" \
+            --output site.zip
+          echo "657c3383228f6d4fb95ebe3464d30d559cb0d560005b19d9468ade4e0a671f4f  site.zip" | sha256sum --check --strict
+
+      - name: Prepare public Pages artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf extracted _site
+          unzip -q site.zip -d extracted
+          test -f extracted/alina-horb-website/index.html
+          test -d extracted/alina-horb-website/assets
+          mkdir -p _site
+          cp extracted/alina-horb-website/index.html _site/
+          cp -R extracted/alina-horb-website/assets _site/
+          touch _site/.nojekyll
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
